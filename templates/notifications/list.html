@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Notifications — AURA{% endblock %}
+
+{% block content %}
+<section class="section container-narrow">
+  <div class="breadcrumbs"><a href="{% url 'accounts:account_dashboard' %}">Account</a> / Notifications</div>
+  <h1>Notifications</h1>
+
+  {% if notifications %}
+    <div style="margin-top:1.5rem;">
+      {% for n in notifications %}
+        <div class="notification-item">
+          <span class="notification-dot-small" style="{% if n.is_read %}visibility:hidden;{% endif %}"></span>
+          <div>
+            <p style="margin:0;">{{ n.message }}</p>
+            <span class="text-muted" style="font-size:0.78rem;">{{ n.created_at|timesince }} ago</span>
+            {% if n.link %}<a href="{{ n.link }}" class="btn-ghost btn-sm" style="display:inline-block; margin-top:0.35rem;">View &rarr;</a>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="icon">
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </div>
+      <h3>You're all caught up.</h3>
+      <p>Updates about your orders and account will appear here.</p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

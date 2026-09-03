@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} — AURA{% endblock %}
+{% block meta_description %}{{ product.short_description }}{% endblock %}
+
+{% block content %}
+<section class="section container">
+  <div class="breadcrumbs">
+    <a href="{% url 'core:home' %}">Home</a> / <a href="{% url 'store:shop' %}">Shop</a>
+    {% if product.category %} / <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>{% endif %}
+    / {{ product.name }}
+  </div>
+
+  <div class="pdp-layout">
+    <!-- Gallery -->
+    <div class="pdp-gallery reveal">
+      <div class="pdp-main-image">
+        {% if product.display_image %}
+          <img id="pdp-main-img" src="{{ product.display_image }}" alt="{{ product.name }}" onerror="this.onerror=null;this.src='{% static 'images/product-fallback.svg' %}';">
+        {% else %}
+          <img id="pdp-main-img" src="{% static 'images/product-fallback.svg' %}" alt="{{ product.name }}">
+        {% endif %}
+        {% if product.is_on_sale %}<span class="badge badge-gold pdp-sale-badge">-{{ product.discount_percent }}%</span>{% endif %}
+      </div>
+      {% if product.gallery_images.all %}
+        <div class="pdp-thumbs">
+          <button type="button" class="pdp-thumb is-active" data-img="{{ product.display_image }}">
+            <img src="{{ product.display_image }}" alt="">
+          </button>
+          {% for img in product.gallery_images.all %}
+            <button type="button" class="pdp-thumb" data-img="{{ img.display_image }}">
+              <img src="{{ img.display_image }}" alt="{{ img.alt_text }}">
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Info -->
+    <div class="pdp-info reveal" data-reveal-delay="100">
+      {% if product.category %}<span class="eyebrow">{{ product.category.name }}</span>{% endif %}
+      <h1>{{ product.name }}</h1>
+
+      {% if product.review_count > 0 %}
+        <div class="rating-row" style="margin-bottom:0.75rem;">
+          <span class="stars" aria-hidden="true">{% for i in "12345" %}{% if forloop.counter <= product.average_rating|floatformat:0 %}★{% else %}<span class="empty">★</span>{% endif %}{% endfor %}</span>
+          <span>{{ product.average_rating }} · {{ product.review_count }} review{{ product.review_count|pluralize }}</span>
+        </div>
+      {% endif %}
+
+      <div class="pdp-price-row" id="pdp-price-row">
+        <span class="pdp-price" id="pdp-price-display">₹{{ product.price|floatformat:2 }}</span>
+        {% if product.is_on_sale %}<span class="compare-price">₹{{ product.compare_at_price|floatformat:2 }}</span>{% endif %}
+      </div>
+
+      <p>{{ product.short_description }}</p>
+
+      <div class="pdp-availability" id="pdp-availability">
+        {% if product.has_variants %}
+          {% if default_variant.in_stock %}
+            <span class="badge" style="background:var(--success); color:#fff;">In Stock</span>
+          {% else %}
+            <span class="badge badge-error">Out of Stock</span>
+          {% endif %}
+        {% elif product.stock_quantity == 0 %}
+          <span class="badge badge-error">Out of Stock</span>
+        {% elif product.stock_quantity <= 5 %}
+          <span class="badge" style="background:var(--warning); color:#1a1408;">Only {{ product.stock_quantity }} left</span>
+        {% else %}
+          <span class="badge" style="background:var(--success); color:#fff;">In Stock</span>
+        {% endif %}
+        {% if product.sku %}<span class="text-muted" style="font-size:0.82rem;" id="pdp-sku-display">SKU: {% if default_variant %}{{ default_variant.sku }}{% else %}{{ product.sku }}{% endif %}</span>{% endif %}
+      </div>
+
+      {% if product.has_variants %}
+        <div class="field pdp-variant-select">
+          <label for="variant-select">Options</label>
+          <select id="variant-select" data-variant-select>
+            {% for v in variants %}
+              <option value="{{ v.id }}"
+                data-price="{{ v.effective_price }}"
+                data-stock="{{ v.stock_quantity }}"
+                data-sku="{{ v.sku }}"
+                {% if v == default_variant %}selected{% endif %}
+                {% if not v.in_stock %}disabled{% endif %}>
+                {{ v.label }}{% if not v.in_stock %} — Out of Stock{% endif %}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endif %}
+
+      <form data-add-to-cart action="{% url 'cart:add_to_cart' product.id %}" method="post" class="pdp-cart-form" id="pdp-cart-form">
+        {% csrf_token %}
+        {% if product.has_variants %}<input type="hidden" name="variant_id" id="pdp-variant-input" value="{{ default_variant.id }}">{% endif %}
+        <div class="qty-stepper">
+          <button type="button" data-step="-1" aria-label="Decrease quantity">&minus;</button>
+          <input type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity|default:1 }}" aria-label="Quantity" id="pdp-quantity-input">
+          <button type="button" data-step="1" aria-label="Increase quantity">+</button>
+        </div>
+        <button type="submit" class="btn btn-primary" id="pdp-add-to-cart-btn" {% if product.has_variants %}{% if not default_variant.in_stock %}disabled{% endif %}{% elif product.stock_quantity == 0 %}disabled{% endif %} style="flex:1;">
+          {% if product.has_variants %}{% if not default_variant.in_stock %}Out of Stock{% else %}Add to Cart{% endif %}{% elif product.stock_quantity == 0 %}Out of Stock{% else %}Add to Cart{% endif %}
+        </button>
+        {% if request.user.is_authenticated %}
+          <button type="button" class="btn-icon" data-wishlist-toggle="{% url 'wishlist:toggle_wishlist' product.id %}" aria-label="Toggle wishlist" aria-pressed="{% if product.id in wishlist_product_ids %}true{% else %}false{% endif %}">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="{% if product.id in wishlist_product_ids %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" style="color:{% if product.id in wishlist_product_ids %}var(--gold){% else %}inherit{% endif %};"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+          </button>
+        {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn-icon" aria-label="Login to save to wishlist">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+          </a>
+        {% endif %}
+      </form>
+
+      {% if request.user.is_authenticated %}
+        <form action="{% url 'orders:buy_now' product.id %}" method="post" class="pdp-buy-now-form" id="pdp-buy-now-form">
+          {% csrf_token %}
+          {% if product.has_variants %}<input type="hidden" name="variant_id" id="pdp-buy-now-variant-input" value="{{ default_variant.id }}">{% endif %}
+          <input type="hidden" name="quantity" id="pdp-buy-now-quantity-input" value="1">
+          <button type="submit" class="btn btn-outline btn-block" id="pdp-buy-now-btn" {% if product.has_variants %}{% if not default_variant.in_stock %}disabled{% endif %}{% elif product.stock_quantity == 0 %}disabled{% endif %}>
+            Buy Now
+          </button>
+        </form>
+      {% else %}
+        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-outline btn-block">Sign In to Buy Now</a>
+      {% endif %}
+
+      <div class="pdp-accordions">
+        <details open>
+          <summary>Description</summary>
+          <p>{{ product.description|linebreaksbr }}</p>
+          {% if product.material or product.weight %}
+            <ul class="pdp-spec-list">
+              {% if product.material %}<li><strong>Material:</strong> {{ product.material }}</li>{% endif %}
+              {% if product.weight %}<li><strong>Weight:</strong> {{ product.weight }}</li>{% endif %}
+            </ul>
+          {% endif %}
+        </details>
+        <details>
+          <summary>Shipping Information</summary>
+          <p>Free shipping on orders over ₹2,999. Standard delivery takes 3–5 business days; all orders are tracked from dispatch to delivery.</p>
+        </details>
+        <details>
+          <summary>Returns</summary>
+          <p>Not quite right? You have 30 days from delivery to return an unused item in its original packaging for a full refund.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="pdp-reviews reveal">
+    <h2>Customer Reviews</h2>
+    <div class="reviews-summary">
+      <div class="reviews-average">
+        <span class="big-rating">{{ product.average_rating|default:"—" }}</span>
+        <span class="stars" aria-hidden="true">{% for i in "12345" %}{% if forloop.counter <= product.average_rating|floatformat:0 %}★{% else %}<span class="empty">★</span>{% endif %}{% endfor %}</span>
+        <span class="text-muted">{{ product.review_count }} review{{ product.review_count|pluralize }}</span>
+      </div>
+    </div>
+
+    {% if user_can_review %}
+      <form method="post" action="{% url 'reviews:add_review' product.id %}" class="review-form">
+        {% csrf_token %}
+        <h4>Write a Review</h4>
+        <div class="field">
+          <label>Your Rating</label>
+          <div class="radio-group" style="flex-direction:row; gap:0.5rem;">
+            {% for choice in review_form.rating %}
+              <label class="radio-option" style="padding:0.5rem 0.85rem;">{{ choice.tag }} {{ choice.choice_label }}</label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="field">
+          <label for="id_comment">Your Review</label>
+          {{ review_form.comment }}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+      </form>
+    {% elif user_has_reviewed %}
+      <p class="text-muted">You've already reviewed this product — thank you!</p>
+    {% elif request.user.is_authenticated %}
+      <p class="text-muted">Only customers who purchased this product can leave a review.</p>
+    {% else %}
+      <p class="text-muted"><a href="{% url 'accounts:login' %}?next={{ request.path }}">Sign in</a> to write a review after your purchase.</p>
+    {% endif %}
+
+    <div class="review-list">
+      {% for review in reviews %}
+        <div class="review-item">
+          <div class="review-item-head">
+            <span class="stars" aria-hidden="true">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}<span class="empty">★</span>{% endif %}{% endfor %}</span>
+            {% if review.is_verified_purchase %}<span class="badge-outline badge" style="margin-left:0.5rem;">Verified Purchase</span>{% endif %}
+          </div>
+          <p class="review-comment">{{ review.comment }}</p>
+          <span class="text-muted" style="font-size:0.8rem;">{{ review.user.first_name|default:review.user.username }} — {{ review.created_at|date:"M d, Y" }}</span>
+        </div>
+      {% empty %}
+        <div class="empty-state" style="padding:2.5rem 1rem;">
+          <p>No reviews yet — be the first to share your thoughts.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- RELATED PRODUCTS -->
+  {% if related_products %}
+  <div class="section-head" style="margin-top:3.5rem;">
+    <h2>You May Also Like</h2>
+  </div>
+  <div class="product-grid">
+    {% for p in related_products %}{% include 'includes/product_card.html' with product=p %}{% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- RECENTLY VIEWED -->
+  {% if recently_viewed %}
+  <div class="section-head" style="margin-top:3.5rem;">
+    <h2>Recently Viewed</h2>
+  </div>
+  <div class="product-grid">
+    {% for p in recently_viewed %}{% include 'includes/product_card.html' with product=p %}{% endfor %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('.pdp-thumb').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.getElementById('pdp-main-img').src = btn.dataset.img;
+      document.querySelectorAll('.pdp-thumb').forEach(function (b) { b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+    });
+  });
+
+  // Variant selection: keep price, stock badge, SKU, hidden form fields, and
+  // add-to-cart/buy-now button states in sync with the chosen option.
+  (function () {
+    var select = document.getElementById('variant-select');
+    if (!select) return;
+
+    var priceEl = document.getElementById('pdp-price-display');
+    var availabilityEl = document.getElementById('pdp-availability');
+    var skuEl = document.getElementById('pdp-sku-display');
+    var cartVariantInput = document.getElementById('pdp-variant-input');
+    var buyNowVariantInput = document.getElementById('pdp-buy-now-variant-input');
+    var addToCartBtn = document.getElementById('pdp-add-to-cart-btn');
+    var buyNowBtn = document.getElementById('pdp-buy-now-btn');
+    var qtyInput = document.getElementById('pdp-quantity-input');
+
+    function formatINR(value) {
+      return '₹' + Number(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function sync() {
+      var opt = select.options[select.selectedIndex];
+      var price = opt.dataset.price;
+      var stock = parseInt(opt.dataset.stock, 10);
+      var sku = opt.dataset.sku;
+      var inStock = stock > 0;
+
+      if (priceEl) priceEl.textContent = formatINR(price);
+      if (skuEl) skuEl.textContent = 'SKU: ' + sku;
+      if (cartVariantInput) cartVariantInput.value = opt.value;
+      if (buyNowVariantInput) buyNowVariantInput.value = opt.value;
+      if (qtyInput) qtyInput.setAttribute('max', stock || 1);
+
+      if (availabilityEl) {
+        let badgeHTML = inStock
+          ? '<span class="badge" style="background:var(--success); color:#fff;">In Stock</span>'
+          : '<span class="badge badge-error">Out of Stock</span>';
+        availabilityEl.innerHTML = badgeHTML + (skuEl ? '<span class="text-muted" style="font-size:0.82rem;" id="pdp-sku-display">SKU: ' + sku + '</span>' : '');
+        skuEl = document.getElementById('pdp-sku-display');
+      }
+
+      if (addToCartBtn) {
+        addToCartBtn.disabled = !inStock;
+        addToCartBtn.textContent = inStock ? 'Add to Cart' : 'Out of Stock';
+      }
+      if (buyNowBtn) {
+        buyNowBtn.disabled = !inStock;
+      }
+    }
+
+    select.addEventListener('change', sync);
+  })();
+
+  // Keep the Buy Now form's quantity synced with the visible quantity stepper.
+  (function () {
+    var qtyInput = document.getElementById('pdp-quantity-input');
+    var buyNowQtyInput = document.getElementById('pdp-buy-now-quantity-input');
+    if (!qtyInput || !buyNowQtyInput) return;
+    var sync = function () { buyNowQtyInput.value = qtyInput.value; };
+    qtyInput.addEventListener('change', sync);
+    qtyInput.addEventListener('input', sync);
+    sync();
+  })();
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .pdp-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(2rem, 4vw, 4rem); margin-top: 1.5rem; }
+  @media (max-width: 900px) { .pdp-layout { grid-template-columns: 1fr; } }
+
+  .pdp-main-image { position: relative; aspect-ratio: 4/5; border-radius: 6px; overflow: hidden; background: var(--surface-muted); }
+  .pdp-main-image img { width: 100%; height: 100%; object-fit: cover; }
+  .pdp-sale-badge { position: absolute; top: 1rem; left: 1rem; }
+  .pdp-thumbs { display: flex; gap: 0.6rem; margin-top: 0.75rem; }
+  .pdp-thumb { width: 64px; height: 78px; border-radius: 3px; overflow: hidden; border: 2px solid transparent; padding: 0; background: none; }
+  .pdp-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .pdp-thumb.is-active { border-color: var(--accent); }
+
+  .pdp-price-row { display: flex; align-items: baseline; gap: 0.75rem; margin: 0.5rem 0 1rem; }
+  .pdp-price { font-family: 'Playfair Display', serif; font-size: 1.9rem; font-weight: 600; }
+  .pdp-availability { display: flex; align-items: center; gap: 0.85rem; margin: 1rem 0 1.5rem; }
+  .pdp-variant-select { max-width: 320px; margin-bottom: 1.25rem; }
+  .pdp-cart-form { display: flex; gap: 0.75rem; align-items: stretch; margin-bottom: 0.85rem; flex-wrap: wrap; }
+  .pdp-buy-now-form { margin-bottom: 2rem; }
+
+  .pdp-accordions details { border-top: 1px solid var(--border); padding: 1rem 0; }
+  .pdp-accordions summary { cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+  .pdp-accordions details p { margin-top: 0.75rem; }
+  .pdp-spec-list { list-style: none; padding: 0; margin: 0.75rem 0 0; font-size: 0.88rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.3rem; }
+
+  .pdp-reviews { margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border); }
+  .reviews-summary { margin: 1rem 0 2rem; }
+  .reviews-average { display: flex; align-items: center; gap: 0.75rem; }
+  .big-rating { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; }
+  .review-form { background: var(--surface-muted); border-radius: 6px; padding: 1.5rem; margin-bottom: 2.5rem; max-width: 600px; }
+  .review-form textarea { min-height: 100px; }
+  .review-list { display: flex; flex-direction: column; gap: 1.5rem; max-width: 700px; }
+  .review-item { padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .review-comment { margin: 0.5rem 0; }
+</style>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Order Confirmed — AURA{% endblock %}
+
+{% block content %}
+<section class="section container-narrow text-center">
+  <div class="confirm-icon">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <span class="eyebrow">Order Confirmed</span>
+  <h1>Thank you, {{ order.full_name }}.</h1>
+  <p>Your order has been placed successfully. A confirmation has been recorded under order number:</p>
+  <p style="font-family:'Playfair Display', serif; font-size:1.4rem; font-weight:700; letter-spacing:0.02em;">{{ order.order_number }}</p>
+
+  <div class="card text-left" style="padding:1.75rem; margin:2rem 0;">
+    {% for item in order.items.all %}
+      <div class="summary-row"><span>{{ item.product_name }}{% if item.variant_label %} ({{ item.variant_label }}){% endif %} &times; {{ item.quantity }}</span><span>₹{{ item.line_total|floatformat:2 }}</span></div>
+    {% endfor %}
+    <div class="summary-row"><span>Subtotal</span><span>₹{{ order.subtotal|floatformat:2 }}</span></div>
+    {% if order.discount > 0 %}<div class="summary-row" style="color:var(--success);"><span>Discount{% if order.coupon %} ({{ order.coupon.code }}){% endif %}</span><span>&minus;₹{{ order.discount|floatformat:2 }}</span></div>{% endif %}
+    <div class="summary-row"><span>Shipping</span><span>{% if order.shipping_cost == 0 %}Free{% else %}₹{{ order.shipping_cost|floatformat:2 }}{% endif %}</span></div>
+    <div class="summary-row total"><span>Total</span><span>₹{{ order.total|floatformat:2 }}</span></div>
+    <hr>
+    <p class="text-muted" style="margin-bottom:0.25rem;"><strong>Payment:</strong> {{ order.get_payment_method_display }} · <span class="badge badge-outline">{{ order.get_payment_status_display }}</span></p>
+    <p class="text-muted" style="margin-bottom:0.25rem;"><strong>Shipping to:</strong></p>
+    <p class="text-muted" style="margin-bottom:0;">{{ order.full_shipping_address }}</p>
+  </div>
+
+  <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+    <a href="{% url 'orders:order_detail' order.order_number %}" class="btn btn-primary">View Order Details</a>
+    <a href="{% url 'store:shop' %}" class="btn btn-outline">Continue Shopping</a>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .confirm-icon { width: 64px; height: 64px; border-radius: 50%; background: var(--success-bg); color: var(--success); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
+  .text-left { text-align: left; }
+</style>
+{% endblock %}

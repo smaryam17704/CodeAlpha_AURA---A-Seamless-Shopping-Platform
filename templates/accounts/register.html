@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Create Account — AURA{% endblock %}
+
+{% block content %}
+<section class="auth-wrapper">
+  <div class="auth-card">
+    <div class="brand"><img src="{% static 'images/aura-logo-transparent.png' %}" alt="AURA" style="height:44px;"></div>
+    <h1>Create Your Account</h1>
+    <p class="subtitle text-muted">Join AURA for a faster checkout, order tracking, and your personal wishlist.</p>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="field">
+          <label for="{{ form.first_name.id_for_label }}">First Name</label>
+          {{ form.first_name }}
+          {{ form.first_name.errors }}
+        </div>
+        <div class="field">
+          <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+          {{ form.last_name }}
+          {{ form.last_name.errors }}
+        </div>
+      </div>
+      <div class="field">
+        <label for="{{ form.email.id_for_label }}">Email</label>
+        {{ form.email }}
+        {{ form.email.errors }}
+      </div>
+      <div class="field">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}
+        {{ form.username.errors }}
+      </div>
+      <div class="field">
+        <label for="{{ form.password1.id_for_label }}">Password</label>
+        {{ form.password1 }}
+        {{ form.password1.errors }}
+        <p class="help-text">At least 8 characters. Avoid common passwords or ones too similar to your name.</p>
+      </div>
+      <div class="field">
+        <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+        {{ form.password2 }}
+        {{ form.password2.errors }}
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+    </form>
+    <p class="auth-footer-link">Already have an account? <a href="{% url 'accounts:login' %}">Sign in</a></p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,74 @@
+/* ==========================================================================
+   AURA — Theme Tokens
+   Light theme: warm ivory, refined navy/gold accents.
+   Dark theme: deep charcoal-navy, soft gold accent, comfortable contrast.
+   ========================================================================== */
+
+:root {
+  /* Light theme (default) */
+  --bg: #faf8f4;
+  --bg-elevated: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: #f3efe7;
+  --text: #1c1b19;
+  --text-secondary: #55524b;
+  --muted: #8a867c;
+  --border: #e7e2d7;
+  --border-strong: #d8d2c3;
+  --accent: #1f2a44;
+  --accent-strong: #12182b;
+  --accent-contrast: #ffffff;
+  --gold: #b6893f;
+  --gold-soft: #d9b876;
+  --success: #2f6b4f;
+  --success-bg: #e9f3ec;
+  --error: #a3372e;
+  --error-bg: #fbebe9;
+  --warning: #9c6b1f;
+  --warning-bg: #fbf1de;
+  --info: #2b5a7a;
+  --info-bg: #e8f1f6;
+  --shadow-sm: 0 1px 2px rgba(28, 27, 25, 0.06);
+  --shadow-md: 0 6px 20px rgba(28, 27, 25, 0.08);
+  --shadow-lg: 0 20px 48px rgba(28, 27, 25, 0.12);
+  --nav-bg: rgba(250, 248, 244, 0.7);
+  --nav-bg-solid: rgba(250, 248, 244, 0.94);
+  --overlay: rgba(18, 17, 15, 0.5);
+  --skeleton: #efeae0;
+  --focus-ring: rgba(31, 42, 68, 0.35);
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  --bg: #0f1117;
+  --bg-elevated: #171a22;
+  --surface: #171a22;
+  --surface-muted: #1d212b;
+  --text: #f3f1ea;
+  --text-secondary: #c6c2b6;
+  --muted: #8b8a86;
+  --border: #2a2e39;
+  --border-strong: #3a3f4c;
+  --accent: #e7dcc4;
+  --accent-strong: #f3ecd9;
+  --accent-contrast: #12141c;
+  --gold: #d9b876;
+  --gold-soft: #e8cf9a;
+  --success: #7fbf9c;
+  --success-bg: #16261f;
+  --error: #e29089;
+  --error-bg: #2a1917;
+  --warning: #e3bb73;
+  --warning-bg: #2a2313;
+  --info: #8dc3e0;
+  --info-bg: #16232b;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 24px 56px rgba(0, 0, 0, 0.55);
+  --nav-bg: rgba(15, 17, 23, 0.6);
+  --nav-bg-solid: rgba(15, 17, 23, 0.92);
+  --overlay: rgba(0, 0, 0, 0.65);
+  --skeleton: #1d212b;
+  --focus-ring: rgba(231, 220, 196, 0.45);
+  color-scheme: dark;
+}

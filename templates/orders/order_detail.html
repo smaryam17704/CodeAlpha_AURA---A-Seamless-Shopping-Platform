@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Order {{ order.order_number }} — AURA{% endblock %}
+
+{% block content %}
+<section class="section container-narrow">
+  <div class="breadcrumbs"><a href="{% url 'orders:order_history' %}">My Orders</a> / {{ order.order_number }}</div>
+
+  <div class="section-head">
+    <div>
+      <h1 style="margin-bottom:0.25rem;">Order {{ order.order_number }}</h1>
+      <p class="text-muted">Placed on {{ order.created_at|date:"F d, Y" }}</p>
+    </div>
+    <span class="badge badge-outline">{{ order.get_status_display }}</span>
+    <span class="badge {% if order.payment_status == 'paid' %}badge-gold{% else %}badge-outline{% endif %}" style="margin-left:0.5rem;">{{ order.get_payment_status_display }}</span>
+  </div>
+
+  {% if order.status != 'cancelled' %}
+    <div class="status-stepper">
+      {% for step, step_label in order.status_steps_display %}
+        <div class="status-step {% if forloop.counter0 <= order.status_step_index %}is-done{% endif %}">
+          <span class="dot">{{ forloop.counter }}</span>
+          <span class="label">{{ step_label }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-error" style="margin:1.5rem 0;">This order has been cancelled.</div>
+  {% endif %}
+
+  <div class="card" style="padding:1.75rem; margin-top:1.5rem;">
+    <h4 style="margin-top:0;">Items</h4>
+    {% for item in order.items.all %}
+      <div class="summary-row">
+        <span>{{ item.product_name }}{% if item.variant_label %} ({{ item.variant_label }}){% endif %} {% if item.product_sku %}<span class="text-muted">({{ item.product_sku }})</span>{% endif %} &times; {{ item.quantity }}</span>
+        <span>₹{{ item.line_total|floatformat:2 }}</span>
+      </div>
+    {% endfor %}
+    <div class="summary-row"><span>Subtotal</span><span>₹{{ order.subtotal|floatformat:2 }}</span></div>
+    {% if order.discount > 0 %}<div class="summary-row" style="color:var(--success);"><span>Discount{% if order.coupon %} ({{ order.coupon.code }}){% endif %}</span><span>&minus;₹{{ order.discount|floatformat:2 }}</span></div>{% endif %}
+    <div class="summary-row"><span>Shipping</span><span>{% if order.shipping_cost == 0 %}Free{% else %}₹{{ order.shipping_cost|floatformat:2 }}{% endif %}</span></div>
+    <div class="summary-row total"><span>Total</span><span>₹{{ order.total|floatformat:2 }}</span></div>
+  </div>
+
+  <div class="card" style="padding:1.75rem; margin-top:1.5rem;">
+    <h4 style="margin-top:0;">Shipping Address</h4>
+    <p style="margin-bottom:0.25rem;"><strong>{{ order.full_name }}</strong></p>
+    <p class="text-muted" style="margin-bottom:0.25rem;">{{ order.full_shipping_address }}</p>
+    <p class="text-muted" style="margin-bottom:0;">{{ order.phone_number }} · {{ order.email }}</p>
+  </div>
+
+  <div class="card" style="padding:1.75rem; margin-top:1.5rem;">
+    <h4 style="margin-top:0;">Payment</h4>
+    <p class="text-muted" style="margin-bottom:0;">{{ order.get_payment_method_display }}</p>
+  </div>
+</section>
+{% endblock %}

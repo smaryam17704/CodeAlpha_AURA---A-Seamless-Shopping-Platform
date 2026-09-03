@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}My Account — AURA{% endblock %}
+
+{% block content %}
+<section class="section container">
+  <div class="breadcrumbs"><a href="{% url 'core:home' %}">Home</a> / Account</div>
+
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">My Account</span>
+      <h1>Hello, {{ request.user.first_name|default:request.user.username }}.</h1>
+    </div>
+  </div>
+
+  <div class="account-layout">
+    <aside class="account-nav">
+      <a href="{% url 'accounts:account_dashboard' %}" class="is-active">Overview</a>
+      <a href="{% url 'accounts:profile_edit' %}">Profile</a>
+      <a href="{% url 'accounts:preferences' %}">Preferences</a>
+      <a href="{% url 'accounts:address_list' %}">Addresses</a>
+      <a href="{% url 'orders:order_history' %}">Orders</a>
+      <a href="{% url 'wishlist:wishlist_detail' %}">Wishlist</a>
+      <a href="{% url 'notifications:notification_list' %}">Notifications {% if unread_notification_count > 0 %}<span class="badge badge-gold" style="margin-left:0.3rem;">{{ unread_notification_count }}</span>{% endif %}</a>
+      <a href="{% url 'accounts:logout' %}" class="account-nav-logout" style="margin-top:0.5rem;">Logout</a>
+    </aside>
+
+    <div class="account-cards">
+      <div class="card account-summary-card">
+        <span class="text-muted" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.06em;">Recent Orders</span>
+        {% if recent_orders %}
+          <div style="margin-top:0.85rem; display:flex; flex-direction:column; gap:0.75rem;">
+            {% for order in recent_orders %}
+              <a href="{% url 'orders:order_detail' order.order_number %}" class="account-mini-row">
+                <span>{{ order.order_number }}</span>
+                <span class="badge badge-outline">{{ order.get_status_display }}</span>
+                <span>₹{{ order.total|floatformat:2 }}</span>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted" style="margin-top:0.75rem;">No orders yet.</p>
+        {% endif %}
+        <a href="{% url 'orders:order_history' %}" class="btn-ghost btn-sm" style="margin-top:0.5rem; display:inline-block;">View all orders &rarr;</a>
+      </div>
+
+      <div class="card account-summary-card">
+        <span class="text-muted" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.06em;">Wishlist</span>
+        <p style="margin-top:0.75rem;">{{ wishlist_count }} item{{ wishlist_count|pluralize }} saved</p>
+        <a href="{% url 'wishlist:wishlist_detail' %}" class="btn-ghost btn-sm">View wishlist &rarr;</a>
+      </div>
+
+      <div class="card account-summary-card">
+        <span class="text-muted" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.06em;">Addresses</span>
+        <p style="margin-top:0.75rem;">{{ addresses.count }} saved address{{ addresses.count|pluralize:"es" }}</p>
+        <a href="{% url 'accounts:address_list' %}" class="btn-ghost btn-sm">Manage addresses &rarr;</a>
+      </div>
+
+      <div class="card account-summary-card">
+        <span class="text-muted" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.06em;">Account Details</span>
+        <p style="margin-top:0.75rem; margin-bottom:0.25rem;">{{ request.user.get_full_name|default:request.user.username }}</p>
+        <p class="text-muted" style="margin-bottom:0.75rem;">{{ request.user.email }}</p>
+        <a href="{% url 'accounts:profile_edit' %}" class="btn-ghost btn-sm">Edit profile &rarr;</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .account-layout { display: grid; grid-template-columns: 220px 1fr; gap: 2.5rem; margin-top: 1.5rem; }
+  @media (max-width: 800px) { .account-layout { grid-template-columns: 1fr; } }
+  .account-nav { display: flex; flex-direction: column; gap: 0.2rem; }
+  .account-nav a { padding: 0.65rem 0.85rem; border-radius: 4px; font-size: 0.9rem; color: var(--text-secondary); }
+  .account-nav a:hover { background: var(--surface-muted); color: var(--text); }
+  .account-nav a.is-active { background: var(--surface-muted); color: var(--text); font-weight: 600; }
+  .account-nav-logout { color: var(--error) !important; }
+  .account-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  @media (max-width: 600px) { .account-cards { grid-template-columns: 1fr; } }
+  .account-summary-card { padding: 1.5rem; }
+  .account-mini-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; gap: 0.5rem; }
+</style>
+{% endblock %}

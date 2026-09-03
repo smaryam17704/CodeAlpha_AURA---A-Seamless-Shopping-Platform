@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile — AURA{% endblock %}
+
+{% block content %}
+<section class="section container-narrow">
+  <div class="breadcrumbs"><a href="{% url 'accounts:account_dashboard' %}">Account</a> / Edit Profile</div>
+  <h1>Edit Profile</h1>
+
+  <form method="post" novalidate class="card" style="padding:2rem; max-width:520px;">
+    {% csrf_token %}
+    <div class="form-row">
+      <div class="field">
+        <label for="{{ form.first_name.id_for_label }}">First Name</label>
+        {{ form.first_name }}
+        {{ form.first_name.errors }}
+      </div>
+      <div class="field">
+        <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+        {{ form.last_name }}
+        {{ form.last_name.errors }}
+      </div>
+    </div>
+    <div class="field">
+      <label for="{{ form.email.id_for_label }}">Email</label>
+      {{ form.email }}
+      {{ form.email.errors }}
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="{% url 'accounts:account_dashboard' %}" class="btn btn-ghost">Cancel</a>
+  </form>
+</section>
+{% endblock %}

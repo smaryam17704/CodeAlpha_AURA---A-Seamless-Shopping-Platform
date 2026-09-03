@@ -1,0 +1,97 @@
+{% extends 'store/shop.html' %}
+
+{% block title %}{{ category.name }} — AURA{% endblock %}
+
+{% block content %}
+<section class="section container">
+  <div class="breadcrumbs"><a href="{% url 'core:home' %}">Home</a> / <a href="{% url 'store:shop' %}">Shop</a> / {{ category.name }}</div>
+
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Category</span>
+      <h1>{{ category.name }}</h1>
+      {% if category.description %}<p class="text-muted" style="max-width:60ch;">{{ category.description }}</p>{% endif %}
+      <p class="text-muted">{{ result_count }} product{{ result_count|pluralize }}</p>
+    </div>
+    <div style="display:flex; gap:0.75rem; align-items:center;">
+      <button type="button" class="btn btn-outline btn-sm filter-drawer-toggle" data-filters-open>Filters</button>
+      <form method="get" id="sort-form">
+        <select name="sort" class="input" data-sort-select style="min-width:180px;">
+          <option value="newest" {% if active_filters.sort == 'newest' %}selected{% endif %}>Newest</option>
+          <option value="price_low" {% if active_filters.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_high" {% if active_filters.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+          <option value="featured" {% if active_filters.sort == 'featured' %}selected{% endif %}>Featured</option>
+          <option value="name_az" {% if active_filters.sort == 'name_az' %}selected{% endif %}>Name: A–Z</option>
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <div class="shop-layout">
+    <div class="mobile-drawer-backdrop" data-filters-backdrop></div>
+    <aside class="shop-filters">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+        <h4 style="margin:0; text-transform:uppercase; font-size:0.85rem; letter-spacing:0.06em;">Filters</h4>
+        <button type="button" class="btn-icon filter-drawer-toggle" data-filters-close aria-label="Close filters">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form method="get" id="filter-form">
+        <input type="hidden" name="sort" value="{{ active_filters.sort }}">
+        <div class="filter-block">
+          <h4>Price Range</h4>
+          <div class="field" style="margin-bottom:0.6rem;">
+            <label for="min_price">Min (₹)</label>
+            <input type="number" min="0" id="min_price" name="min_price" value="{{ active_filters.min_price }}" placeholder="0">
+          </div>
+          <div class="field" style="margin-bottom:0.6rem;">
+            <label for="max_price">Max (₹)</label>
+            <input type="number" min="0" id="max_price" name="max_price" value="{{ active_filters.max_price }}" placeholder="Any">
+          </div>
+          <button type="submit" class="btn btn-outline btn-sm btn-block">Apply</button>
+        </div>
+        <div class="filter-block">
+          <h4>Rating</h4>
+          {% for r in "4321" %}
+            <label class="filter-option rating-filter-option {% if active_filters.min_rating == r %}is-active{% endif %}">
+              <input type="radio" name="min_rating" value="{{ r }}" {% if active_filters.min_rating == r %}checked{% endif %} onchange="this.form.submit()">
+              <span class="stars">{% for i in "12345" %}{% if forloop.counter <= r|add:0 %}★{% else %}<span class="empty">★</span>{% endif %}{% endfor %}</span> &amp; up
+            </label>
+          {% endfor %}
+          <label class="filter-option {% if not active_filters.min_rating %}is-active{% endif %}">
+            <input type="radio" name="min_rating" value="" {% if not active_filters.min_rating %}checked{% endif %} onchange="this.form.submit()"> Any Rating
+          </label>
+        </div>
+        <div class="filter-block">
+          <h4>Availability</h4>
+          <label class="filter-option {% if active_filters.availability == 'in_stock' %}is-active{% endif %}">
+            <input type="radio" name="availability" value="in_stock" {% if active_filters.availability == 'in_stock' %}checked{% endif %} onchange="this.form.submit()"> In Stock
+          </label>
+          <label class="filter-option {% if not active_filters.availability %}is-active{% endif %}">
+            <input type="radio" name="availability" value="" {% if not active_filters.availability %}checked{% endif %} onchange="this.form.submit()"> All
+          </label>
+        </div>
+      </form>
+      <a href="{% url 'store:shop' %}" class="btn-ghost btn-sm">Shop all categories</a>
+    </aside>
+
+    <div>
+      {% if products %}
+        <div class="product-grid">
+          {% for product in products %}{% include 'includes/product_card.html' with product=product %}{% endfor %}
+        </div>
+        {% include 'includes/pagination.html' %}
+      {% else %}
+        <div class="empty-state">
+          <div class="icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>
+          </div>
+          <h3>No products here yet.</h3>
+          <p>This category is being curated. Check back soon, or explore the rest of AURA.</p>
+          <a href="{% url 'store:shop' %}" class="btn btn-primary">Browse All Products</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

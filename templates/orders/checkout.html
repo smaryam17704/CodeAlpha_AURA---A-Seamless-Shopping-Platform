@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Checkout — AURA{% endblock %}
+
+{% block content %}
+<section class="section container">
+  <div class="breadcrumbs"><a href="{% url 'core:home' %}">Home</a> / <a href="{% url 'cart:cart_detail' %}">Cart</a> / Checkout</div>
+  <h1>Checkout</h1>
+
+  <form method="post" class="checkout-layout" novalidate>
+    {% csrf_token %}
+    <div>
+      {% if addresses %}
+        <div class="card" style="padding:1.5rem; margin-bottom:1.5rem;">
+          <h4 style="margin-top:0;">Use a saved address</h4>
+          <div class="saved-address-list">
+            {% for addr in addresses %}
+              <label class="radio-option" style="align-items:flex-start;">
+                <input type="radio" name="saved_address" value="{{ addr.id }}" data-fill-address
+                  data-name="{{ addr.full_name }}" data-phone="{{ addr.phone_number }}"
+                  data-line1="{{ addr.address_line1 }}" data-line2="{{ addr.address_line2 }}"
+                  data-city="{{ addr.city }}" data-state="{{ addr.state }}"
+                  data-postal="{{ addr.postal_code }}" data-country="{{ addr.country }}">
+                <span>
+                  <strong>{{ addr.full_name }}</strong> {% if addr.is_default %}<span class="badge-outline badge">Default</span>{% endif %}<br>
+                  <span class="text-muted">{{ addr.full_address }}</span>
+                </span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="card" style="padding:1.5rem; margin-bottom:1.5rem;">
+        <h4 style="margin-top:0;">Contact &amp; Shipping</h4>
+        <div class="form-row">
+          <div class="field">
+            <label for="{{ form.full_name.id_for_label }}">Full Name</label>
+            {{ form.full_name }}
+            {{ form.full_name.errors }}
+          </div>
+          <div class="field">
+            <label for="{{ form.email.id_for_label }}">Email</label>
+            {{ form.email }}
+            {{ form.email.errors }}
+          </div>
+        </div>
+        <div class="field">
+          <label for="{{ form.phone_number.id_for_label }}">Phone Number</label>
+          {{ form.phone_number }}
+          {{ form.phone_number.errors }}
+        </div>
+        <div class="field">
+          <label for="{{ form.address_line1.id_for_label }}">Address Line 1</label>
+          {{ form.address_line1 }}
+          {{ form.address_line1.errors }}
+        </div>
+        <div class="field">
+          <label for="{{ form.address_line2.id_for_label }}">Address Line 2</label>
+          {{ form.address_line2 }}
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="{{ form.city.id_for_label }}">City</label>
+            {{ form.city }}
+            {{ form.city.errors }}
+          </div>
+          <div class="field">
+            <label for="{{ form.state.id_for_label }}">State</label>
+            {{ form.state }}
+            {{ form.state.errors }}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="{{ form.postal_code.id_for_label }}">Postal Code</label>
+            {{ form.postal_code }}
+            {{ form.postal_code.errors }}
+          </div>
+          <div class="field">
+            <label for="{{ form.country.id_for_label }}">Country</label>
+            {{ form.country }}
+            {{ form.country.errors }}
+          </div>
+        </div>
+        <label class="checkbox-row">
+          {{ form.save_address }} <span>Save this address to my account</span>
+        </label>
+      </div>
+
+      <div class="card" style="padding:1.5rem; margin-bottom:1.5rem;">
+        <h4 style="margin-top:0;">Have a Coupon?</h4>
+        <div class="field" style="margin-bottom:0;">
+          <label for="{{ form.coupon_code.id_for_label }}">Coupon Code</label>
+          {{ form.coupon_code }}
+          {{ form.coupon_code.errors }}
+          <p class="help-text">Try <strong>AURA10</strong> or <strong>WELCOME15</strong> for a demo discount.</p>
+        </div>
+      </div>
+
+      <div class="card" style="padding:1.5rem;">
+        <h4 style="margin-top:0;">Payment Method</h4>
+        <div class="radio-group">
+          {% for choice in form.payment_method %}
+            <label class="radio-option">{{ choice.tag }} {{ choice.choice_label }}</label>
+          {% endfor %}
+        </div>
+        <p class="text-muted" style="font-size:0.8rem; margin-top:0.75rem; margin-bottom:0;">Card and UPI options are simulated for this project — no external payment processor is contacted. Orders are recorded as placed regardless of the method chosen.</p>
+      </div>
+    </div>
+
+    <div class="summary-box">
+      <h3 style="margin-top:0;">Order Summary</h3>
+      {% if is_buy_now %}<span class="badge badge-gold" style="margin-bottom:0.85rem;">Buy Now</span>{% endif %}
+      {% for item in items %}
+        <div class="summary-row"><span>{{ item.product.name }}{% if item.variant %} ({{ item.variant.label }}){% endif %} &times; {{ item.quantity }}</span><span>₹{{ item.line_total|floatformat:2 }}</span></div>
+      {% endfor %}
+      <div class="summary-row"><span>Subtotal</span><span>₹{{ cart.subtotal|floatformat:2 }}</span></div>
+      {% if cart.discount > 0 %}<div class="summary-row" style="color:var(--success);"><span>Discount</span><span>&minus;₹{{ cart.discount|floatformat:2 }}</span></div>{% endif %}
+      <div class="summary-row"><span>Shipping</span><span>{% if cart.shipping_cost == 0 %}Free{% else %}₹{{ cart.shipping_cost|floatformat:2 }}{% endif %}</span></div>
+      <div class="summary-row total"><span>Total</span><span>₹{{ cart.total|floatformat:2 }}</span></div>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:1.25rem;">Place Order</button>
+      <a href="{% if is_buy_now %}{% url 'store:shop' %}{% else %}{% url 'cart:cart_detail' %}{% endif %}" class="btn btn-ghost btn-block" style="margin-top:0.5rem;">&larr; {% if is_buy_now %}Continue Shopping{% else %}Back to Cart{% endif %}</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('[data-fill-address]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      document.getElementById('{{ form.full_name.id_for_label }}').value = radio.dataset.name;
+      document.getElementById('{{ form.phone_number.id_for_label }}').value = radio.dataset.phone;
+      document.getElementById('{{ form.address_line1.id_for_label }}').value = radio.dataset.line1;
+      document.getElementById('{{ form.address_line2.id_for_label }}').value = radio.dataset.line2;
+      document.getElementById('{{ form.city.id_for_label }}').value = radio.dataset.city;
+      document.getElementById('{{ form.state.id_for_label }}').value = radio.dataset.state;
+      document.getElementById('{{ form.postal_code.id_for_label }}').value = radio.dataset.postal;
+      document.getElementById('{{ form.country.id_for_label }}').value = radio.dataset.country;
+    });
+  });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .checkout-layout { display: grid; grid-template-columns: 1fr 360px; gap: 3rem; align-items: start; margin-top: 1.5rem; }
+  @media (max-width: 900px) { .checkout-layout { grid-template-columns: 1fr; } }
+  .saved-address-list { display: flex; flex-direction: column; gap: 0.6rem; }
+</style>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" data-theme="light" {% if user.is_authenticated and user.profile.theme_preference != 'system' %}data-user-theme-pref="{{ user.profile.theme_preference }}"{% endif %}>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{{ SITE_NAME }} — {{ SITE_TAGLINE }}{% endblock %}</title>
+<meta name="description" content="{% block meta_description %}AURA — premium curated goods. {{ SITE_TAGLINE }}{% endblock %}">
+<link rel="icon" type="image/png" href="{% static 'images/favicon-256.png' %}">
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var t = localStorage.getItem('aura-theme');
+    if (!t) {
+      var pref = root.getAttribute('data-user-theme-pref');
+      if (pref === 'light' || pref === 'dark') {
+        t = pref;
+      } else {
+        t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+    }
+    root.setAttribute('data-theme', t);
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{% static 'css/themes.css' %}">
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/components.css' %}">
+<link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+{% if user.is_authenticated %}
+<script>
+  (function () {
+    var dbPref = '{{ user.profile.theme_preference|default:"system" }}';
+    var lastSynced = localStorage.getItem('aura-theme-synced-pref');
+    if (lastSynced !== dbPref) {
+      if (dbPref === 'light' || dbPref === 'dark') {
+        localStorage.setItem('aura-theme', dbPref);
+        document.documentElement.setAttribute('data-theme', dbPref);
+      } else {
+        localStorage.removeItem('aura-theme');
+        var sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', sys);
+      }
+      localStorage.setItem('aura-theme-synced-pref', dbPref);
+    }
+  })();
+</script>
+{% endif %}
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+{% include 'includes/navbar.html' %}
+
+<main id="main-content">
+{% include 'includes/messages.html' %}
+{% block content %}{% endblock %}
+</main>
+
+{% include 'includes/footer.html' %}
+{% include 'includes/mobile_drawer.html' %}
+{% include 'includes/search_overlay.html' %}
+
+<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/theme.js' %}"></script>
+<script src="{% static 'js/navigation.js' %}"></script>
+<script src="{% static 'js/cart.js' %}"></script>
+<script src="{% static 'js/wishlist.js' %}"></script>
+<script src="{% static 'js/filters.js' %}"></script>
+<script src="{% static 'js/modals.js' %}"></script>
+<script src="{% static 'js/quick-view.js' %}"></script>
+<script src="{% static 'js/animations.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

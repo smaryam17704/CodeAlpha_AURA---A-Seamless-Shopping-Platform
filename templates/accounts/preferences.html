@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Preferences — AURA{% endblock %}
+
+{% block content %}
+<section class="section container-narrow">
+  <div class="breadcrumbs"><a href="{% url 'accounts:account_dashboard' %}">Account</a> / Preferences</div>
+  <h1>Preferences</h1>
+  <p class="text-muted">Manage how AURA looks and communicates with you.</p>
+
+  <form method="post" novalidate class="card" style="padding:2rem; margin-top:1.5rem;">
+    {% csrf_token %}
+    <div class="field">
+      <label>Theme Preference</label>
+      <div class="radio-group">
+        {% for choice in form.theme_preference %}
+          <label class="radio-option">{{ choice.tag }} {{ choice.choice_label }}</label>
+        {% endfor %}
+      </div>
+      <p class="help-text">This sets your default when you sign in on a new device. The theme toggle in the navigation always takes priority for the current session.</p>
+    </div>
+    <div class="field">
+      <label class="checkbox-row">
+        {{ form.newsletter_opt_in }} <span>Send me the AURA Journal newsletter</span>
+      </label>
+    </div>
+    <div class="field">
+      <label class="checkbox-row">
+        {{ form.order_update_emails }} <span>Email me about my order status</span>
+      </label>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Preferences</button>
+  </form>
+</section>
+{% endblock %}

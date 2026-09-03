@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sign Out — AURA{% endblock %}
+
+{% block content %}
+<section class="auth-wrapper">
+  <div class="auth-card text-center">
+    <div class="brand" style="justify-content:center;"><img src="{% static 'images/aura-logo-transparent.png' %}" alt="AURA" style="height:44px;"></div>
+    <h1>Sign out of AURA?</h1>
+    <p class="subtitle text-muted">You can always sign back in to pick up where you left off.</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary btn-block">Yes, Sign Me Out</button>
+    </form>
+    <a href="{% url 'core:home' %}" class="btn btn-ghost btn-block" style="margin-top:0.5rem;">Cancel</a>
+  </div>
+</section>
+{% endblock %}

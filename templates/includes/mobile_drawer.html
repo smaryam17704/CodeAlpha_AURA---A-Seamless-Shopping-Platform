@@ -1,0 +1,35 @@
+{% load static %}
+<div class="mobile-drawer-backdrop"></div>
+<aside class="mobile-drawer" aria-hidden="true" aria-label="Mobile navigation">
+  <div class="mobile-drawer-head">
+    <a href="{% url 'core:home' %}" class="brand">
+      <img src="{% static 'images/aura-logo-transparent.png' %}" alt="AURA" style="height:32px;">
+    </a>
+    <button type="button" class="btn-icon" data-drawer-close aria-label="Close menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <ul class="mobile-nav-links">
+    <li><a href="{% url 'store:shop' %}">Shop</a></li>
+    <li><a href="{% url 'store:shop' %}?collection=new">New Arrivals</a></li>
+    <li><a href="{% url 'store:shop' %}?collection=featured">Collections</a></li>
+    <li><a href="{% url 'core:journal' %}">Journal</a></li>
+    <li><a href="{% url 'cart:cart_detail' %}">Cart ({{ cart_item_count }})</a></li>
+    {% if request.user.is_authenticated %}
+      <li><a href="{% url 'wishlist:wishlist_detail' %}">Wishlist ({{ wishlist_count }})</a></li>
+      <li><a href="{% url 'notifications:notification_list' %}">Notifications {% if unread_notification_count > 0 %}({{ unread_notification_count }}){% endif %}</a></li>
+      <li><a href="{% url 'accounts:account_dashboard' %}">My Account</a></li>
+      <li><a href="{% url 'orders:order_history' %}">My Orders</a></li>
+    {% else %}
+      <li><a href="{% url 'accounts:login' %}">Login</a></li>
+      <li><a href="{% url 'accounts:register' %}">Create Account</a></li>
+    {% endif %}
+    <li><a href="{% url 'core:contact' %}">Contact</a></li>
+  </ul>
+  <div class="theme-row">
+    <span>Dark mode</span>
+    <button type="button" class="theme-toggle" data-theme-toggle role="switch" aria-checked="false" aria-label="Switch to dark theme">
+      <span class="knob"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></span>
+    </button>
+  </div>
+</aside>

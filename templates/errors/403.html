@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Access Denied — AURA{% endblock %}
+{% block content %}
+<div class="empty-state container-narrow">
+  <div class="icon">403</div>
+  <h3>You don't have access to this page.</h3>
+  <p>This area is restricted. If you think this is a mistake, please sign in with the correct account.</p>
+  <a href="{% url 'core:home' %}" class="btn btn-primary">Return Home</a>
+</div>
+{% endblock %}

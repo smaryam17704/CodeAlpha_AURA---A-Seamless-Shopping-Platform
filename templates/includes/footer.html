@@ -1,0 +1,55 @@
+{% load static %}
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="{% static 'images/aura-logo-transparent.png' %}" alt="AURA">
+        <p>{{ SITE_TAGLINE }} Curated objects, apparel and essentials for a considered life.</p>
+        <form class="newsletter-form" data-newsletter-form action="{% url 'core:newsletter_signup' %}" method="post">
+          {% csrf_token %}
+          <input type="email" name="email" placeholder="Your email" required aria-label="Email for newsletter">
+          <button type="submit" class="btn btn-gold btn-sm">Join</button>
+        </form>
+      </div>
+      <div>
+        <h5>Shop</h5>
+        <ul>
+          <li><a href="{% url 'store:shop' %}">All Products</a></li>
+          <li><a href="{% url 'store:shop' %}?collection=new">New Arrivals</a></li>
+          <li><a href="{% url 'store:shop' %}?collection=featured">Featured</a></li>
+          {% for c in footer_categories %}<li><a href="{{ c.get_absolute_url }}">{{ c.name }}</a></li>{% endfor %}
+        </ul>
+      </div>
+      <div class="footer-col-account">
+        <h5>Account</h5>
+        <ul>
+          <li><a href="{% url 'accounts:account_dashboard' %}">My Account</a></li>
+          <li><a href="{% url 'orders:order_history' %}">Order History</a></li>
+          <li><a href="{% url 'wishlist:wishlist_detail' %}">Wishlist</a></li>
+          <li><a href="{% url 'cart:cart_detail' %}">Cart</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Company</h5>
+        <ul>
+          <li><a href="{% url 'core:journal' %}">Journal</a></li>
+          <li><a href="{% url 'core:home' %}#philosophy">Our Philosophy</a></li>
+          <li><a href="{% url 'core:home' %}#story">About AURA</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Support</h5>
+        <ul>
+          <li><a href="{% url 'core:contact' %}">Contact Us</a></li>
+          <li><a href="{% url 'orders:order_history' %}">Track Order</a></li>
+          <li><a href="{% url 'core:home' %}#shipping">Shipping &amp; Returns</a></li>
+          <li><a href="{% url 'core:home' %}#faq">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; {% now "Y" %} AURA. All rights reserved.</span>
+      <span>Designed with intention.</span>
+    </div>
+  </div>
+</footer>

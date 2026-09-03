@@ -1,0 +1,9 @@
+<div class="search-overlay">
+  <div class="search-panel">
+    <form action="{% url 'store:search' %}" method="get">
+      <input type="search" name="q" placeholder="Search products, categories, SKU..." aria-label="Search" value="{{ request.GET.q }}">
+      <button type="submit" class="btn btn-primary btn-sm">Search</button>
+    </form>
+    <button type="button" class="btn-ghost btn-sm" data-search-close style="margin-top:0.75rem;">Close</button>
+  </div>
+</div>

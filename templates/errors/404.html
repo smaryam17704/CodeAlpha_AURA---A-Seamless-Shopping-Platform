@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Page Not Found — AURA{% endblock %}
+{% block content %}
+<div class="empty-state container-narrow">
+  <div class="icon">404</div>
+  <h3>This page has wandered off.</h3>
+  <p>The page you're looking for doesn't exist, or may have moved. Let's get you back to something extraordinary.</p>
+  <a href="{% url 'core:home' %}" class="btn btn-primary">Return Home</a>
+</div>
+{% endblock %}

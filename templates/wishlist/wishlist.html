@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Your Wishlist — AURA{% endblock %}
+
+{% block content %}
+<section class="section container">
+  <div class="breadcrumbs"><a href="{% url 'core:home' %}">Home</a> / Wishlist</div>
+  <h1>Your Wishlist</h1>
+
+  {% if items %}
+    <div class="product-grid" style="margin-top:1.5rem;">
+      {% for item in items %}
+        <div data-wishlist-row>
+          {% include 'includes/product_card.html' with product=item.product %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="icon">
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+      </div>
+      <h3>Keep what inspires you.</h3>
+      <p>Save pieces you love here, and come back to them anytime.</p>
+      <a href="{% url 'store:shop' %}" class="btn btn-primary">Explore the Shop</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

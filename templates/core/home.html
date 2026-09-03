@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AURA — {{ SITE_TAGLINE }}{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container hero-inner">
+    <span class="eyebrow reveal">The AURA Collection</span>
+    <h1 class="reveal" data-reveal-delay="80">Find Your Kind of<br>Extraordinary.</h1>
+    <p class="hero-sub reveal" data-reveal-delay="160">Curated objects, apparel, and essentials — chosen for how they're made, not just how they look.</p>
+    <div class="hero-actions reveal" data-reveal-delay="240">
+      <a href="{% url 'store:shop' %}" class="btn btn-primary">Explore the Shop</a>
+      <a href="{% url 'store:shop' %}?collection=new" class="btn btn-outline">New Arrivals</a>
+    </div>
+  </div>
+</section>
+
+<!-- BRAND INTRO -->
+<section class="section container-narrow text-center" id="story">
+  <span class="eyebrow reveal">Our Story</span>
+  <h2 class="reveal">Considered, not curated for trend.</h2>
+  <p class="reveal">AURA began with a simple frustration: too many "premium" goods were premium in price alone. Every piece we carry is chosen for material honesty, longevity, and quiet craftsmanship — the kind of extraordinary that reveals itself slowly, not all at once.</p>
+</section>
+
+<!-- CATEGORY DISCOVERY -->
+<section class="section container">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Shop by Category</span>
+      <h2>Discover the Collection</h2>
+    </div>
+    <a href="{% url 'store:shop' %}" class="btn-ghost">View all &rarr;</a>
+  </div>
+  <div class="category-grid">
+    {% for category in categories %}
+      <a href="{{ category.get_absolute_url }}" class="category-tile reveal" data-reveal-delay="{{ forloop.counter0|add:0 }}0">
+        <div class="category-tile-media">
+          {% if category.image_url %}
+            <img src="{{ category.image_url }}" alt="{{ category.name }}" loading="lazy" onerror="this.onerror=null;this.src='{% static 'images/product-fallback.svg' %}';">
+          {% else %}
+            <img src="{% static 'images/product-fallback.svg' %}" alt="{{ category.name }}" loading="lazy">
+          {% endif %}
+        </div>
+        <span class="category-tile-name">{{ category.name }}</span>
+        <span class="category-tile-count">{{ category.product_count }} pieces</span>
+      </a>
+    {% empty %}
+      <p class="text-muted">Categories will appear here once added.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- FEATURED COLLECTION -->
+{% if featured_products %}
+<section class="section container">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Featured Collection</span>
+      <h2>Trending Right Now</h2>
+    </div>
+    <a href="{% url 'store:shop' %}?collection=featured" class="btn-ghost">View all &rarr;</a>
+  </div>
+  <div class="product-grid">
+    {% for product in featured_products %}
+      <div class="reveal" data-reveal-delay="{{ forloop.counter0 }}0">{% include 'includes/product_card.html' with product=product %}</div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- NEW ARRIVALS -->
+{% if new_arrivals %}
+<section class="section container" style="background:var(--surface-muted); border-radius:8px;">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Just In</span>
+      <h2>New Arrivals</h2>
+    </div>
+    <a href="{% url 'store:shop' %}?collection=new" class="btn-ghost">View all &rarr;</a>
+  </div>
+  <div class="product-grid">
+    {% for product in new_arrivals %}
+      <div class="reveal" data-reveal-delay="{{ forloop.counter0 }}0">{% include 'includes/product_card.html' with product=product %}</div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- EDITORIAL / STORY SECTION -->
+<section class="section editorial">
+  <div class="container editorial-inner">
+    <div class="editorial-media reveal">
+      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1000&q=80" alt="A considered still life of AURA objects on a linen surface" loading="lazy">
+    </div>
+    <div class="editorial-copy reveal" data-reveal-delay="120">
+      <span class="eyebrow">The Journal</span>
+      <h2>Why materials matter more than logos.</h2>
+      <p>A well-made object doesn't need to announce itself. We work directly with small workshops and mills who share our obsession with how things are made — vegetable-tanned leather, hand-blown glass, long-staple linen — so what you bring home holds up to years, not seasons.</p>
+      <a href="{% url 'core:journal' %}" class="btn btn-outline">Read the Journal</a>
+    </div>
+  </div>
+</section>
+
+<!-- CURATED SHOWCASE -->
+{% if curated %}
+<section class="section container">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Curated For You</span>
+      <h2>A Considered Edit</h2>
+    </div>
+  </div>
+  <div class="product-grid">
+    {% for product in curated %}
+      <div class="reveal" data-reveal-delay="{{ forloop.counter0 }}0">{% include 'includes/product_card.html' with product=product %}</div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- CUSTOMER REVIEWS -->
+{% if testimonials %}
+<section class="section container">
+  <div class="section-head">
+    <div><span class="eyebrow">Customer Reviews</span><h2>Loved by the AURA Community</h2></div>
+  </div>
+  <div class="testimonial-grid">
+    {% for review in testimonials %}
+      <div class="testimonial-card reveal" data-reveal-delay="{{ forloop.counter0 }}0">
+        <span class="stars" aria-hidden="true">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}<span class="empty">★</span>{% endif %}{% endfor %}</span>
+        <p>&ldquo;{{ review.comment|truncatewords:28 }}&rdquo;</p>
+        <div class="testimonial-author">{{ review.user.first_name|default:review.user.username }}</div>
+        <div class="testimonial-context">on {{ review.product.name }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- BRAND PHILOSOPHY / WHY SHOP WITH US -->
+<section class="section container" id="philosophy">
+  <div class="section-head">
+    <div><span class="eyebrow">Why AURA</span><h2>Built on a Few Simple Promises</h2></div>
+  </div>
+  <div class="philosophy-grid">
+    <div class="philosophy-card reveal">
+      <div class="philosophy-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l3 6 7 1-5 5 1.2 7L12 18l-6.2 3L7 14 2 9l7-1z"/></svg>
+      </div>
+      <h4>Honest Materials</h4>
+      <p>Full-grain leather, solid brass, natural fibres — nothing laminated to look like something it isn't.</p>
+    </div>
+    <div class="philosophy-card reveal" data-reveal-delay="100" id="shipping">
+      <div class="philosophy-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="7" width="15" height="13" rx="1"/><path d="M16 10h4l3 4v6h-7"/><circle cx="6" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/></svg>
+      </div>
+      <h4>Careful Shipping</h4>
+      <p>Every order is packed by hand and shipped with tracking — free above ₹2,999.</p>
+    </div>
+    <div class="philosophy-card reveal" data-reveal-delay="200" id="faq">
+      <div class="philosophy-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v13H7l-3 3z"/></svg>
+      </div>
+      <h4>Easy Returns</h4>
+      <p>30 days to decide. Not right for you? We'll make it simple to send back.</p>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter-section">
+  <div class="container-narrow text-center">
+    <span class="eyebrow">Stay Close</span>
+    <h2>Join the AURA Journal</h2>
+    <p>Considered reads on craft and material, plus early access to new arrivals. No noise, no spam.</p>
+    <form class="newsletter-form-inline" data-newsletter-form action="{% url 'core:newsletter_signup' %}" method="post">
+      {% csrf_token %}
+      <input type="email" name="email" placeholder="Your email address" required aria-label="Email for newsletter">
+      <button type="submit" class="btn btn-primary">Subscribe</button>
+    </form>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .hero {
+    position: relative;
+    padding: clamp(4.5rem, 8vw, 8rem) 0 clamp(3.5rem, 6vw, 6rem);
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(182,137,63,0.14), transparent 55%),
+      radial-gradient(ellipse at 80% 80%, rgba(31,42,68,0.08), transparent 55%),
+      var(--bg);
+    text-align: center;
+    overflow: hidden;
+  }
+  .hero-inner { max-width: 760px; margin-inline: auto; }
+  .hero-sub { font-size: clamp(1rem, 0.4vw + 0.95rem, 1.2rem); max-width: 52ch; margin-inline: auto; }
+  .hero-actions { display: flex; gap: 1rem; justify-content: center; margin-top: 1.75rem; flex-wrap: wrap; }
+
+  .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+  .category-tile {
+    display: flex; flex-direction: column; gap: 0.35rem;
+    padding: 2rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .category-tile:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+  .category-tile-name { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; }
+  .category-tile-count { font-size: 0.8rem; color: var(--muted); }
+
+  .editorial { background: var(--surface-muted); }
+  .editorial-inner { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 4vw, 4rem); align-items: center; }
+  .editorial-media { border-radius: 6px; overflow: hidden; aspect-ratio: 4/3; }
+  .editorial-media img { width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width: 900px) { .editorial-inner { grid-template-columns: 1fr; } }
+
+  .philosophy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  @media (max-width: 800px) { .philosophy-grid { grid-template-columns: 1fr; } }
+  .philosophy-card { padding: 2rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
+  .philosophy-icon { width: 52px; height: 52px; border-radius: 50%; background: var(--surface-muted); display: flex; align-items: center; justify-content: center; color: var(--gold); margin-bottom: 1.1rem; }
+
+  .testimonial-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  @media (max-width: 800px) { .testimonial-grid { grid-template-columns: 1fr; } }
+
+  .newsletter-section { background: var(--accent-strong); color: rgba(255,255,255,0.9); padding-block: clamp(3rem, 5vw, 5rem); }
+  .newsletter-section h2 { color: #fff; }
+  .newsletter-section p { color: rgba(255,255,255,0.65); }
+  .newsletter-form-inline { display: flex; gap: 0.75rem; max-width: 440px; margin: 1.5rem auto 0; }
+  .newsletter-form-inline input {
+    flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.22); color: #fff;
+  }
+  .newsletter-form-inline input::placeholder { color: rgba(255,255,255,0.5); }
+  @media (max-width: 480px) { .newsletter-form-inline { flex-direction: column; } }
+</style>
+{% endblock %}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">
+  <rect width="400" height="500" fill="#f3efe7"/>
+  <g stroke="#c9c2b0" stroke-width="1.5" fill="none">
+    <circle cx="200" cy="220" r="46"/>
+    <path d="M110 340 L160 260 L200 300 L250 230 L300 340 Z"/>
+  </g>
+  <text x="200" y="420" font-family="Georgia, serif" font-size="16" fill="#8a867c" text-anchor="middle">AURA</text>
+</svg>
